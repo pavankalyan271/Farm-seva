@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../LanguageProvider";
 
 /**
  * Owner dashboard: incoming requests, accept/reject, mark completed, notifications, and inventory management.
@@ -197,6 +198,7 @@ function formatTimeReadable(hhmm?: string | null) {
 }
 
 export default function OwnerDashboard(): React.ReactElement {
+  const { t } = useLanguage();
   const session = getSession();
   const [owner, setOwner] = React.useState<Account | null>(null);
   const [incoming, setIncoming] = React.useState<RequestItem[]>([]);
@@ -477,7 +479,7 @@ export default function OwnerDashboard(): React.ReactElement {
     setCompleteBusyId(null);
   }
 
-  // My Jobs (owner) - accepted and completed
+  // {t("owner_my_jobs_title")} (owner) - accepted and completed
   const myJobs = React.useMemo(() => {
     return incoming.filter((r) => r.status === "accepted" || r.status === "completed");
   }, [incoming]);
@@ -590,22 +592,22 @@ export default function OwnerDashboard(): React.ReactElement {
       <div className="container">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
-            <h1>Welcome{owner && owner.fullName ? `, ${owner.fullName}` : ""}</h1>
-            <p><strong>Role:</strong> Machinery Owner</p>
-            <p><strong>Registered location:</strong> {owner ? owner.location : "—"}</p>
+            <h1>{t("owner_dashboard_title")}{owner && owner.fullName ? `, ${owner.fullName}` : ""}</h1>
+            <p><strong>{t("auth_role_owner")}:</strong> {t("auth_role_owner")}</p>
+            <p><strong>{t("owner_location_label")}:</strong> {owner ? owner.location : "—"}</p>
           </div>
 
           <div style={{ textAlign: "right" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
               <button className="btn-ghost" onClick={() => { setShowNotifications((s) => !s); if (!showNotifications) refreshNotificationsForOwner(); }} aria-expanded={showNotifications} aria-controls="notifications-panel">
-                🔔 Notifications {unreadCount() > 0 && <span className="notif-badge" aria-hidden>{unreadCount()}</span>}
+                🔔 {t("owner_notifications_title")} {unreadCount() > 0 && <span className="notif-badge" aria-hidden>{unreadCount()}</span>}
               </button>
             </div>
 
             {showNotifications && (
               <div id="notifications-panel" className="entry-card" style={{ marginTop: 8, minWidth: 320 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong>Notifications</strong>
+                  <strong>{t("owner_notifications_title")}</strong>
                   <button className="btn-link" onClick={markAllAsRead}>Mark all as read</button>
                 </div>
 
@@ -639,16 +641,16 @@ export default function OwnerDashboard(): React.ReactElement {
         </div>
 
         <div style={{ marginTop: 12 }}>
-          <button className="btn-primary" onClick={handleLogout}>Logout</button>
+          <button className="btn-primary" onClick={handleLogout}>{t("nav_logout")}</button>
         </div>
 
         <hr style={{ margin: "20px 0" }} />
 
         <section aria-labelledby="incoming-requests-heading">
-          <h2 id="incoming-requests-heading">Incoming Machinery Requests</h2>
+          <h2 id="incoming-requests-heading">{t("owner_requests_title")}</h2>
 
           {incoming.length === 0 ? (
-            <div className="placeholder-box" style={{ marginTop: 12 }}>No requests yet.</div>
+            <div className="placeholder-box" style={{ marginTop: 12 }}>{t("owner_empty_requests")}</div>
           ) : (
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               {incoming.map((r) => (
@@ -656,13 +658,13 @@ export default function OwnerDashboard(): React.ReactElement {
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                     <div>
                       <div style={{ fontWeight: 700 }}>{r.machineryType} — {r.machineName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Farmer:</strong> {r.farmerName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Location:</strong> {r.farmerLocation}</div>
-                      <div style={{ marginTop: 6 }}><strong>Service:</strong> {r.serviceType === "rent" ? "Rent Machine" : "With Operator"}</div>
-                      <div style={{ marginTop: 6 }}><strong>Hourly price:</strong> ₹{r.hourlyPrice.toFixed(2)}</div>
-                      <div style={{ marginTop: 6 }}><strong>Hours:</strong> {r.hours}</div>
-                      <div style={{ marginTop: 6 }}><strong>Estimated total:</strong> ₹{r.totalPrice.toFixed(2)}</div>
-                      <div style={{ marginTop: 6 }}><strong>Requested:</strong> {new Date(r.createdAt).toLocaleString()}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("auth_role_farmer")}:</strong> {r.farmerName}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_location_label")}:</strong> {r.farmerLocation}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_machinery_type_label")}:</strong> {r.serviceType === "rent" ? t("owner_rent_price_label") : t("owner_operator_price_label")}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_rent_price_label")}:</strong> ₹{r.hourlyPrice.toFixed(2)}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_schedule_time_label")}:</strong> {r.hours}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_rent_price_label")}:</strong> ₹{r.totalPrice.toFixed(2)}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_schedule_date_label")}:</strong> {new Date(r.createdAt).toLocaleString()}</div>
 
                       {r.status === "accepted" && (
                         <div style={{ marginTop: 8 }}>
@@ -680,7 +682,7 @@ export default function OwnerDashboard(): React.ReactElement {
 
                       {r.status === "completed" && (
                         <div style={{ marginTop: 8 }}>
-                          <div style={{ fontWeight: 700 }}>Completed</div>
+                          <div style={{ fontWeight: 700 }}>{t("farmer_request_status_completed")}</div>
                           <div style={{ marginTop: 6, color: "var(--muted)" }}>
                             {r.acceptedDate && r.acceptedTime ? `Completed on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}` : "Completed"}
                           </div>
@@ -689,13 +691,13 @@ export default function OwnerDashboard(): React.ReactElement {
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, marginBottom: 8 }}>Status</div>
+                      <div style={{ fontWeight: 700, marginBottom: 8 }}>{t("owner_requests_title")}</div>
                       <div style={{ marginBottom: 12 }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</div>
 
                       {r.status === "pending" ? (
                         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                          <button className="btn-primary" onClick={() => onAcceptClick(r)}>Accept</button>
-                          <button className="btn-secondary" onClick={() => onRejectClick(r.id)}>Reject</button>
+                          <button className="btn-primary" onClick={() => onAcceptClick(r)}>{t("owner_accept_button")}</button>
+                          <button className="btn-secondary" onClick={() => onRejectClick(r.id)}>{t("owner_reject_button")}</button>
                         </div>
                       ) : r.status === "accepted" ? (
                         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
@@ -705,7 +707,7 @@ export default function OwnerDashboard(): React.ReactElement {
                             onClick={() => markRequestCompleted(r.id)}
                             disabled={completeBusyId === r.id}
                           >
-                            {completeBusyId === r.id ? "Completing…" : "Mark Completed"}
+                            {completeBusyId === r.id ? "Completing…" : t("owner_complete_job_button")}
                           </button>
                         </div>
                       ) : (
@@ -724,14 +726,14 @@ export default function OwnerDashboard(): React.ReactElement {
         {/* Inventory management */}
         <section aria-labelledby="inventory-heading" style={{ marginTop: 12 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h2 id="inventory-heading">My Inventory</h2>
+            <h2 id="inventory-heading">{t("owner_inventory_title")}</h2>
             <div>
-              <button className="btn-primary" onClick={openAddMachine}>Add New Machine</button>
+              <button className="btn-primary" onClick={openAddMachine}>{t("owner_add_machinery_button")}</button>
             </div>
           </div>
 
           {myInventory.length === 0 ? (
-            <div className="placeholder-box" style={{ marginTop: 12 }}>You have no machines listed yet.</div>
+            <div className="placeholder-box" style={{ marginTop: 12 }}>{t("owner_empty_inventory")}</div>
           ) : (
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               {myInventory.map((m) => (
@@ -749,9 +751,9 @@ export default function OwnerDashboard(): React.ReactElement {
                     </div>
 
                     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                      <button className="btn-secondary" onClick={() => openEditMachine(m)}>Edit</button>
+                      <button className="btn-secondary" onClick={() => openEditMachine(m)}>{t("owner_edit_machinery_button")}</button>
                       <button className="btn-secondary" onClick={() => toggleAvailability(m.id)}>{(m.availability || "").toLowerCase() === "available" ? "Mark Unavailable" : "Mark Available"}</button>
-                      <button className="btn-danger" onClick={() => deleteMachine(m.id)}>Delete</button>
+                      <button className="btn-danger" onClick={() => deleteMachine(m.id)}>{t("owner_delete_machinery_button")}</button>
                     </div>
                   </div>
                 </div>
@@ -762,12 +764,12 @@ export default function OwnerDashboard(): React.ReactElement {
 
         <hr style={{ margin: "20px 0" }} />
 
-        {/* My Jobs */}
+        {/* {t("owner_my_jobs_title")} */}
         <section aria-labelledby="my-jobs-heading" style={{ marginTop: 12 }}>
-          <h2 id="my-jobs-heading">My Jobs</h2>
+          <h2 id="my-jobs-heading">{t("owner_my_jobs_title")}</h2>
 
           {myJobs.length === 0 ? (
-            <div className="placeholder-box">No active jobs yet.</div>
+            <div className="placeholder-box">{t("owner_empty_jobs")}</div>
           ) : (
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               {myJobs.map((r) => (
@@ -775,10 +777,10 @@ export default function OwnerDashboard(): React.ReactElement {
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                     <div>
                       <div style={{ fontWeight: 700 }}>{r.machineryType} — {r.machineName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Farmer:</strong> {r.farmerName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Service:</strong> {r.serviceType === "rent" ? "Rent Machine" : "With Operator"}</div>
-                      <div style={{ marginTop: 6 }}><strong>Hours:</strong> {r.hours}</div>
-                      <div style={{ marginTop: 6 }}><strong>Estimated total:</strong> ₹{r.totalPrice.toFixed(2)}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("auth_role_farmer")}:</strong> {r.farmerName}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_machinery_type_label")}:</strong> {r.serviceType === "rent" ? t("owner_rent_price_label") : t("owner_operator_price_label")}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_schedule_time_label")}:</strong> {r.hours}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("owner_rent_price_label")}:</strong> ₹{r.totalPrice.toFixed(2)}</div>
 
                       {r.status === "accepted" && (
                         <div style={{ marginTop: 8 }}>
@@ -796,7 +798,7 @@ export default function OwnerDashboard(): React.ReactElement {
 
                       {r.status === "completed" && (
                         <div style={{ marginTop: 8 }}>
-                          <div style={{ fontWeight: 700 }}>Completed</div>
+                          <div style={{ fontWeight: 700 }}>{t("farmer_request_status_completed")}</div>
                           <div style={{ marginTop: 6, color: "var(--muted)" }}>
                             {r.acceptedDate && r.acceptedTime ? `Completed on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}` : "Completed"}
                           </div>
@@ -805,7 +807,7 @@ export default function OwnerDashboard(): React.ReactElement {
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, marginBottom: 8 }}>Status</div>
+                      <div style={{ fontWeight: 700, marginBottom: 8 }}>{t("owner_requests_title")}</div>
                       <div style={{ marginBottom: 12 }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</div>
 
                       {r.status === "accepted" && (
@@ -815,7 +817,7 @@ export default function OwnerDashboard(): React.ReactElement {
                             onClick={() => markRequestCompleted(r.id)}
                             disabled={completeBusyId === r.id}
                           >
-                            {completeBusyId === r.id ? "Completing…" : "Mark Completed"}
+                            {completeBusyId === r.id ? "Completing…" : t("owner_complete_job_button")}
                           </button>
                         </div>
                       )}
@@ -830,28 +832,28 @@ export default function OwnerDashboard(): React.ReactElement {
         {/* Acceptance modal */}
         {acceptingRequest && (
           <aside className="success-card" role="dialog" aria-modal="true" aria-labelledby="accept-modal-title" style={{ marginTop: 18 }}>
-            <h3 id="accept-modal-title">Confirm Acceptance</h3>
+            <h3 id="accept-modal-title">{t("shared_modal_confirm")}</h3>
 
             <div style={{ marginTop: 8 }}>
               <div><strong>Request from</strong><div>{acceptingRequest.farmerName} — {acceptingRequest.farmerLocation}</div></div>
-              <div style={{ marginTop: 8 }}><strong>Machine</strong><div>{acceptingRequest.machineName} ({acceptingRequest.machineryType})</div></div>
-              <div style={{ marginTop: 8 }}><strong>Service</strong><div>{acceptingRequest.serviceType === "rent" ? "Rent Machine" : "With Operator"}</div></div>
+              <div style={{ marginTop: 8 }}><strong>{t("owner_machine_name_label")}</strong><div>{acceptingRequest.machineName} ({acceptingRequest.machineryType})</div></div>
+              <div style={{ marginTop: 8 }}><strong>{t("owner_machinery_type_label")}</strong><div>{acceptingRequest.serviceType === "rent" ? t("owner_rent_price_label") : t("owner_operator_price_label")}</div></div>
 
               <div style={{ marginTop: 12 }}>
-                <label htmlFor="accept-date">Arrival / Service Date</label>
+                <label htmlFor="accept-date">{t("owner_schedule_date_label")}</label>
                 <input id="accept-date" type="date" value={acceptDate} onChange={(e) => setAcceptDate(e.target.value)} />
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <label htmlFor="accept-time">Arrival / Start Time</label>
+                <label htmlFor="accept-time">{t("owner_schedule_time_label")}</label>
                 <input id="accept-time" type="time" value={acceptTime} onChange={(e) => setAcceptTime(e.target.value)} />
               </div>
 
               {acceptError && <div className="field-error" role="alert" aria-live="assertive" style={{ marginTop: 8 }}>{acceptError}</div>}
 
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <button className="btn-primary" onClick={confirmAcceptance} disabled={acceptBusy}>Confirm Acceptance</button>
-                <button className="btn-secondary" onClick={cancelAcceptance} disabled={acceptBusy}>Cancel</button>
+                <button className="btn-primary" onClick={confirmAcceptance} disabled={acceptBusy}>{t("shared_modal_confirm")}</button>
+                <button className="btn-secondary" onClick={cancelAcceptance} disabled={acceptBusy}>{t("shared_modal_cancel")}</button>
               </div>
             </div>
           </aside>
@@ -860,49 +862,49 @@ export default function OwnerDashboard(): React.ReactElement {
         {/* Inventory modal (Add / Edit) */}
         {showInventoryModal && editingMachine && (
           <aside className="success-card" role="dialog" aria-modal="true" aria-labelledby="inventory-modal-title" style={{ marginTop: 18 }}>
-            <h3 id="inventory-modal-title">{editingMachine.id ? "Edit Machine" : "Add Machine"}</h3>
+            <h3 id="inventory-modal-title">{editingMachine.id ? t("owner_edit_machinery_button") : t("owner_add_machinery_button")}</h3>
 
             <div style={{ marginTop: 8 }}>
               <div>
-                <label htmlFor="machine-name">Machine name</label>
+                <label htmlFor="machine-name">{t("owner_machine_name_label")}</label>
                 <input id="machine-name" type="text" value={editingMachine.machineName} onChange={(e) => setEditingMachine({ ...editingMachine, machineName: e.target.value })} />
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <label htmlFor="machine-type">Type</label>
+                <label htmlFor="machine-type">{t("owner_machinery_type_label")}</label>
                 <input id="machine-type" type="text" value={editingMachine.machineryType} onChange={(e) => setEditingMachine({ ...editingMachine, machineryType: e.target.value })} />
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <label htmlFor="machine-desc">Description</label>
+                <label htmlFor="machine-desc">{t("owner_location_label")}</label>
                 <textarea id="machine-desc" value={editingMachine.description} onChange={(e) => setEditingMachine({ ...editingMachine, description: e.target.value })} />
               </div>
 
               <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
                 <div style={{ flex: 1 }}>
-                  <label htmlFor="rent-price">Rent price (₹/hour)</label>
+                  <label htmlFor="rent-price">{t("owner_rent_price_label")} (₹/hour)</label>
                   <input id="rent-price" type="number" min="0" value={editingMachine.rentPrice as any} onChange={(e) => setEditingMachine({ ...editingMachine, rentPrice: e.target.value === "" ? undefined : Number(e.target.value) })} />
                 </div>
 
                 <div style={{ flex: 1 }}>
-                  <label htmlFor="operator-price">Operator price (₹/hour)</label>
+                  <label htmlFor="operator-price">{t("owner_operator_price_label")} (₹/hour)</label>
                   <input id="operator-price" type="number" min="0" value={editingMachine.operatorPrice as any} onChange={(e) => setEditingMachine({ ...editingMachine, operatorPrice: e.target.value === "" ? undefined : Number(e.target.value) })} />
                 </div>
               </div>
 
               <div style={{ marginTop: 8 }}>
-                <label htmlFor="availability">Availability</label>
+                <label htmlFor="availability">{t("owner_availability_label")}</label>
                 <select id="availability" value={editingMachine.availability} onChange={(e) => setEditingMachine({ ...editingMachine, availability: e.target.value })}>
-                  <option value="available">Available</option>
-                  <option value="unavailable">Unavailable</option>
+                  <option value="available">{t("owner_availability_label")}</option>
+                  <option value="unavailable">{t("owner_availability_label")}</option>
                 </select>
               </div>
 
               {inventoryError && <div className="field-error" role="alert" aria-live="assertive" style={{ marginTop: 8 }}>{inventoryError}</div>}
 
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <button className="btn-primary" onClick={saveMachine} disabled={inventoryBusy}>{inventoryBusy ? "Saving…" : "Save"}</button>
-                <button className="btn-secondary" onClick={() => { setShowInventoryModal(false); setEditingMachine(null); }}>Cancel</button>
+                <button className="btn-primary" onClick={saveMachine} disabled={inventoryBusy}>{inventoryBusy ? t("shared_loading") : "Save"}</button>
+                <button className="btn-secondary" onClick={() => { setShowInventoryModal(false); setEditingMachine(null); }}>{t("shared_modal_cancel")}</button>
               </div>
             </div>
           </aside>
