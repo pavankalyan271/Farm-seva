@@ -3,7 +3,11 @@ import Header from "./components/Header";
 import Home from "./pages/Home";
 import Farmer from "./pages/Farmer";
 import MachineryOwner from "./pages/MachineryOwner";
+import Login from "./pages/Login";
+import FarmerDashboard from "./pages/FarmerDashboard";
+import OwnerDashboard from "./pages/OwnerDashboard";
 
+/** small hash router */
 function useHashRoute() {
   const [route, setRoute] = React.useState<string>(() => window.location.hash || "#/");
   React.useEffect(() => {
@@ -14,20 +18,55 @@ function useHashRoute() {
   return route;
 }
 
-export default function App(): JSX.Element {
-  const route = useHashRoute();
+/** read session from localStorage */
+function getSession(): { role: string; phone: string } | null {
+  try {
+    const raw = localStorage.getItem("farmseva_session");
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
 
-  let Page: JSX.Element;
-  if (route.startsWith("#/farmer")) Page = <Farmer />;
-  else if (route.startsWith("#/owner")) Page = <MachineryOwner />;
-  else Page = <Home />;
+export default function App(): React.ReactElement {
+  const route = useHashRoute();
+  const session = getSession();
+
+  // Route guards for dashboards: check exact dashboard routes first
+  if (route === "#/farmer-dashboard") {
+    if (!session || session.role !== "farmer") {
+      window.location.hash = "#/login";
+      return <></>;
+    }
+  }
+
+  if (route === "#/owner-dashboard") {
+    if (!session || session.role !== "owner") {
+      window.location.hash = "#/login";
+      return <></>;
+    }
+  }
+
+  // Route selection: check dashboard routes first, then other routes.
+  let Page: React.ReactElement;
+  if (route === "#/farmer-dashboard") Page = <FarmerDashboard />;
+  else if (route === "#/owner-dashboard") Page = <OwnerDashboard />;
+  else if (route === "#/login") Page = <Login />;
+  else if (route === "#/farmer") Page = <Farmer />;
+  else if (route === "#/owner") Page = <MachineryOwner />;
+  else if (route === "#/" || route === "" || route === "#") Page = <Home />;
+  else {
+    // Fallback: unknown route -> Home
+    Page = <Home />;
+  }
 
   return (
     <div className="app-root">
       <Header />
       <main className="app-main">{Page}</main>
       <footer className="app-footer">
-        <small>Farm Seva — Prototype shell</small>
+        <small>Farm Seva — Prototype shell (Demo authentication only)</small>
       </footer>
     </div>
   );
