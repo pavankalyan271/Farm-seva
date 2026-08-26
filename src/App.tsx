@@ -6,15 +6,20 @@ import MachineryOwner from "./pages/MachineryOwner";
 import Login from "./pages/Login";
 import FarmerDashboard from "./pages/FarmerDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
+import { useLanguage } from "./LanguageProvider";
 
 /** small hash router */
 function useHashRoute() {
-  const [route, setRoute] = React.useState<string>(() => window.location.hash || "#/");
+  const [route, setRoute] = React.useState<string>(
+    () => window.location.hash || "#/"
+  );
+
   React.useEffect(() => {
     const onHash = () => setRoute(window.location.hash || "#/");
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
+
   return route;
 }
 
@@ -32,6 +37,7 @@ function getSession(): { role: string; phone: string } | null {
 export default function App(): React.ReactElement {
   const route = useHashRoute();
   const session = getSession();
+  const { t } = useLanguage();
 
   // Route guards for dashboards: check exact dashboard routes first
   if (route === "#/farmer-dashboard") {
@@ -50,6 +56,7 @@ export default function App(): React.ReactElement {
 
   // Route selection: check dashboard routes first, then other routes.
   let Page: React.ReactElement;
+
   if (route === "#/farmer-dashboard") Page = <FarmerDashboard />;
   else if (route === "#/owner-dashboard") Page = <OwnerDashboard />;
   else if (route === "#/login") Page = <Login />;
@@ -64,9 +71,13 @@ export default function App(): React.ReactElement {
   return (
     <div className="app-root">
       <Header />
+
       <main className="app-main">{Page}</main>
+
       <footer className="app-footer">
-        <small>Farm Seva — Prototype shell (Demo authentication only)</small>
+        <small>
+          {t("footer_prototype")}
+        </small>
       </footer>
     </div>
   );
