@@ -1,4 +1,5 @@
 import React from "react";
+import { useLanguage } from "../LanguageProvider";
 
 /**
  * Farmer dashboard with Nearby Machinery, Request flow, Bookings, Inventory view, and Notifications.
@@ -214,6 +215,7 @@ function formatTimeReadable(hhmm?: string | null) {
 
 export default function FarmerDashboard(): React.ReactElement {
   const session = getSession();
+  const { t } = useLanguage();
   const [farmer, setFarmer] = React.useState<Account | null>(null);
   const [owners, setOwners] = React.useState<Account[]>([]);
   const [machineryTypes, setMachineryTypes] = React.useState<string[]>([]);
@@ -551,7 +553,7 @@ export default function FarmerDashboard(): React.ReactElement {
         recipientRole: "owner",
         type: "new_request",
         title: "New Machinery Request",
-        message: `${farmer.fullName} requested your ${newReq.machineName}. Service: ${requestService === "rent" ? "Rent Machine" : "With Operator"}; Hours: ${hours}; Estimated: ₹${totalPrice.toFixed(2)}`,
+        message: `${farmer.fullName} requested your ${newReq.machineName}. Service: ${requestService === "rent" ? t("owner_rent_machine") : t("owner_with_operator")}; Hours: ${hours}; Estimated: ₹${totalPrice.toFixed(2)}`,
         requestId: newReq.id,
       });
     } catch {
@@ -611,7 +613,7 @@ export default function FarmerDashboard(): React.ReactElement {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <div>
             <h1>Welcome{farmer && farmer.fullName ? `, ${farmer.fullName}` : ""}</h1>
-            <p><strong>Role:</strong> Farmer</p>
+            <p><strong>{t("farmer_role_label")}:</strong> {t("farmer_role_value")}</p>
           </div>
 
           <div style={{ textAlign: "right" }}>
@@ -624,13 +626,13 @@ export default function FarmerDashboard(): React.ReactElement {
             {showNotifications && (
               <div id="notifications-panel" className="entry-card" style={{ marginTop: 8, minWidth: 320 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong>Notifications</strong>
-                  <button className="btn-link" onClick={markAllAsRead}>Mark all as read</button>
+                  <strong>{t("farmer_notifications_title")}</strong>
+                  <button className="btn-link" onClick={markAllAsRead}>{t("farmer_mark_all_read")}</button>
                 </div>
 
                 <div style={{ marginTop: 8 }}>
                   {notifications.length === 0 ? (
-                    <div className="placeholder-box">No new notifications.</div>
+                    <div className="placeholder-box">{t("farmer_empty_notifications")}</div>
                   ) : (
                     <div style={{ display: "grid", gap: 8 }}>
                       {notifications.slice().reverse().map((n) => (
@@ -643,8 +645,8 @@ export default function FarmerDashboard(): React.ReactElement {
                             </div>
 
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                              <button className="btn-link" onClick={() => { markNotificationRead(n.id); viewRequestFromNotification(n); }}>View Request</button>
-                              <button className="btn-link" onClick={() => markNotificationRead(n.id)}>Mark read</button>
+                              <button className="btn-link" onClick={() => { markNotificationRead(n.id); viewRequestFromNotification(n); }}>{t("farmer_view_request")}</button>
+                              <button className="btn-link" onClick={() => markNotificationRead(n.id)}>{t("farmer_mark_read")}</button>
                             </div>
                           </div>
                         </div>
@@ -658,11 +660,11 @@ export default function FarmerDashboard(): React.ReactElement {
         </div>
 
         <div style={{ marginTop: 8 }}>
-          <strong>Your registered location:</strong> {farmer ? farmer.location || "—" : "—"}
+          <strong>{t("farmer_registered_location")}</strong> {farmer ? farmer.location || "—" : "—"}
         </div>
 
         <div style={{ marginTop: 12 }}>
-          <strong>Your current location</strong>
+          <strong>{t("farmer_current_location")}</strong>
           <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
             <button className="btn-secondary" onClick={captureFarmerLocation} disabled={locBusy}>
               {locBusy ? "Detecting location…" : "Use My Current Location"}
@@ -670,9 +672,9 @@ export default function FarmerDashboard(): React.ReactElement {
 
             <div style={{ fontSize: 13, color: "var(--muted)" }}>
               {farmer && typeof farmer.latitude === "number" && typeof farmer.longitude === "number" ? (
-                <span aria-live="polite">Location detected</span>
+                <span aria-live="polite">{t("farmer_location_detected")}</span>
               ) : (
-                <span aria-live="polite">Location not detected</span>
+                <span aria-live="polite">{t("farmer_location_not_detected")}</span>
               )}
             </div>
           </div>
@@ -685,11 +687,11 @@ export default function FarmerDashboard(): React.ReactElement {
         </div>
 
         <div className="placeholder-box" style={{ marginTop: 12 }}>
-          <strong>Nearby machinery will appear here.</strong>
+          <strong>{t("farmer_nearby_machinery_placeholder")}</strong>
         </div>
 
         <div style={{ marginTop: 18 }}>
-          <button className="btn-primary" onClick={handleLogout}>Logout</button>
+          <button className="btn-primary" onClick={handleLogout}>{t("nav_logout")}</button>
         </div>
 
         <hr style={{ margin: "20px 0" }} />
@@ -697,10 +699,10 @@ export default function FarmerDashboard(): React.ReactElement {
         {/* Nearby Machinery + Filters */}
         <section aria-labelledby="nearby-machinery-heading">
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <h2 id="nearby-machinery-heading">Nearby Machinery</h2>
+            <h2 id="nearby-machinery-heading">{t("farmer_nearby_machinery_title")}</h2>
 
             <div style={{ fontSize: 13, color: "var(--muted)", marginLeft: "auto" }}>
-              <div><strong>Your location:</strong> {farmer ? farmer.location || "—" : "—"}</div>
+              <div><strong>{t("farmer_your_location")}</strong> {farmer ? farmer.location || "—" : "—"}</div>
               <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>
                 Nearby matching will use exact location/distance in a later step.
               </div>
@@ -709,9 +711,9 @@ export default function FarmerDashboard(): React.ReactElement {
 
           <div className="filters" style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap" }}>
             <div className="form-row" style={{ minWidth: 160 }}>
-              <label htmlFor="filter-type">Machinery Type</label>
+              <label htmlFor="filter-type">{t("farmer_machinery_type")}</label>
               <select id="filter-type" value={selectedType} onChange={(e) => setSelectedType(e.target.value)}>
-                <option value="">All types</option>
+                <option value="">{t("farmer_all_types")}</option>
                 {machineryTypes.map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
@@ -719,15 +721,15 @@ export default function FarmerDashboard(): React.ReactElement {
             </div>
 
             <div className="form-row" style={{ minWidth: 140 }}>
-              <label htmlFor="filter-availability">Availability</label>
+              <label htmlFor="filter-availability">{t("farmer_availability")}</label>
               <select id="filter-availability" value={availabilityFilter} onChange={(e) => setAvailabilityFilter(e.target.value as any)}>
-                <option value="available">Available</option>
-                <option value="all">All</option>
+                <option value="available">{t("farmer_available")}</option>
+                <option value="all">{t("farmer_all")}</option>
               </select>
             </div>
 
             <div className="form-row" style={{ minWidth: 160 }}>
-              <label htmlFor="filter-distance">Nearby</label>
+              <label htmlFor="filter-distance">{t("farmer_nearby")}</label>
               <select
                 id="filter-distance"
                 value={distanceFilterKm}
@@ -737,16 +739,16 @@ export default function FarmerDashboard(): React.ReactElement {
                 }}
                 disabled={!(farmer && typeof farmer.latitude === "number" && typeof farmer.longitude === "number")}
               >
-                <option value="all">All</option>
-                <option value="5">Within 5 km</option>
-                <option value="10">Within 10 km</option>
-                <option value="25">Within 25 km</option>
-                <option value="50">Within 50 km</option>
+                <option value="all">{t("farmer_all")}</option>
+                <option value="5">{t("farmer_within_5_km")}</option>
+                <option value="10">{t("farmer_within_10_km")}</option>
+                <option value="25">{t("farmer_within_25_km")}</option>
+                <option value="50">{t("farmer_within_50_km")}</option>
               </select>
             </div>
 
             <div style={{ flex: "1 1 240px", minWidth: 180 }}>
-              <label htmlFor="search-q">Search</label>
+              <label htmlFor="search-q">{t("farmer_search")}</label>
               <input
                 id="search-q"
                 type="search"
@@ -776,9 +778,9 @@ export default function FarmerDashboard(): React.ReactElement {
           {/* Results */}
           <div style={{ marginTop: 18 }}>
             {owners.length === 0 ? (
-              <div className="placeholder-box">No machinery is currently registered.</div>
+              <div className="placeholder-box">{t("farmer_no_machinery_registered")}</div>
             ) : filteredOwners.length === 0 ? (
-              <div className="placeholder-box">No machinery found matching your search.</div>
+              <div className="placeholder-box">{t("farmer_no_machinery_found")}</div>
             ) : (
               <div className="card-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 12 }}>
                 {filteredOwners.map(({ owner: o, distanceKm }, idx) => {
@@ -796,8 +798,8 @@ export default function FarmerDashboard(): React.ReactElement {
                       </div>
 
                       <div style={{ marginTop: 10, fontSize: 14 }}>
-                        <div><strong>Owner:</strong> {o.fullName || "—"}</div>
-                        <div><strong>Location:</strong> {o.location || o.village || "—"}</div>
+                        <div><strong>{t("farmer_owner")}</strong> {o.fullName || "—"}</div>
+                        <div><strong>{t("farmer_location")}</strong> {o.location || o.village || "—"}</div>
                         {distanceKm != null ? (
                           <div style={{ marginTop: 6, color: "var(--muted)" }} aria-label={`Distance ${formatDistance(distanceKm)}`}>
                             📍 {formatDistance(distanceKm)}
@@ -811,15 +813,15 @@ export default function FarmerDashboard(): React.ReactElement {
 
                       <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                         <div style={{ border: "1px solid rgba(0,0,0,0.04)", padding: 8, borderRadius: 8 }}>
-                          <div style={{ fontWeight: 700 }}>Rent Machine</div>
+                          <div style={{ fontWeight: 700 }}>{t("owner_rent_machine")}</div>
                           <div style={{ marginTop: 6 }}>{formatPrice(primary?.rentPrice ?? o.rentPrice)}</div>
-                          <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>Farmer operates the machine</div>
+                          <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>{t("owner_farmer_operates")}</div>
                         </div>
 
                         <div style={{ border: "1px solid rgba(0,0,0,0.04)", padding: 8, borderRadius: 8 }}>
-                          <div style={{ fontWeight: 700 }}>With Operator</div>
+                          <div style={{ fontWeight: 700 }}>{t("owner_with_operator")}</div>
                           <div style={{ marginTop: 6 }}>{formatPrice(primary?.operatorPrice ?? o.operatorPrice)}</div>
-                          <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>Owner/operator performs work</div>
+                          <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>{t("owner_owner_performs")}</div>
                         </div>
                       </div>
 
@@ -845,7 +847,7 @@ export default function FarmerDashboard(): React.ReactElement {
                               Request Machinery
                             </button>
                           ) : (
-                            <div style={{ fontSize: 13, color: "var(--muted)", alignSelf: "center" }}>Currently unavailable</div>
+                            <div style={{ fontSize: 13, color: "var(--muted)", alignSelf: "center" }}>{t("farmer_currently_unavailable")}</div>
                           )}
                         </div>
                       </div>
@@ -860,17 +862,17 @@ export default function FarmerDashboard(): React.ReactElement {
         {/* Request modal */}
         {requestOwner && (
           <aside id="request-modal" className="success-card" role="dialog" aria-modal="true" aria-labelledby="request-modal-title" style={{ marginTop: 18 }}>
-            <h3 id="request-modal-title">Request Machinery</h3>
+            <h3 id="request-modal-title">{t("farmer_request_machinery_title")}</h3>
 
             <div style={{ marginTop: 8 }}>
-              <div><strong>Owner</strong><div>{requestOwner.fullName}</div></div>
+              <div><strong>{t("farmer_owner_name")}</strong><div>{requestOwner.fullName}</div></div>
 
               <div style={{ marginTop: 8 }}>
-                <strong>Select machine</strong>
+                <strong>{t("farmer_select_machine")}</strong>
                 <div style={{ marginTop: 8 }}>
                   {/* Show owner's machinery list */}
                   {machineryForOwner(requestOwner.phone).length === 0 ? (
-                    <div className="placeholder-box">No machines listed for this owner.</div>
+                    <div className="placeholder-box">{t("farmer_no_machines_owner")}</div>
                   ) : (
                     <div style={{ display: "grid", gap: 8 }}>
                       {machineryForOwner(requestOwner.phone).map((m) => (
@@ -892,7 +894,7 @@ export default function FarmerDashboard(): React.ReactElement {
 
               <div style={{ marginTop: 12 }}>
                 <fieldset>
-                  <legend style={{ fontWeight: 700 }}>Select service</legend>
+                  <legend style={{ fontWeight: 700 }}>{t("farmer_select_service")}</legend>
                   <label style={{ display: "block", marginTop: 6 }}>
                     <input type="radio" name="service" value="rent" checked={requestService === "rent"} onChange={() => setRequestService("rent")} />{" "}
                     Rent Machine — Farmer operates the machine
@@ -906,12 +908,12 @@ export default function FarmerDashboard(): React.ReactElement {
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <label htmlFor="hours"><strong>Hours</strong></label>
+                <label htmlFor="hours"><strong>{t("farmer_hours")}</strong></label>
                 <input id="hours" type="number" min="1" value={requestHours as any} onChange={(e) => setRequestHours(e.target.value === "" ? "" : Number(e.target.value))} placeholder="Number of hours" />
               </div>
 
               <div style={{ marginTop: 12 }}>
-                <strong>Estimated total:</strong>{" "}
+                <strong>{t("farmer_estimated_total_label")}</strong>{" "}
                 {requestService ? (
                   (() => {
                     const mach = requestMachineId ? loadMachinery().find((m) => m.id === requestMachineId) : null;
@@ -921,15 +923,15 @@ export default function FarmerDashboard(): React.ReactElement {
                     return <span>{formatPrice(hourly)} × {hours} = <strong>₹{total.toFixed(2)}</strong></span>;
                   })()
                 ) : (
-                  <span className="field-note">Select a service to see estimate</span>
+                  <span className="field-note">{t("farmer_select_service_estimate")}</span>
                 )}
               </div>
 
               {requestError && <div className="field-error" role="alert" aria-live="assertive" style={{ marginTop: 8 }}>{requestError}</div>}
 
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <button className="btn-primary" onClick={createRequest} disabled={requestBusy}>Send Request</button>
-                <button className="btn-secondary" onClick={closeRequestModal} disabled={requestBusy}>Cancel</button>
+                <button className="btn-primary" onClick={createRequest} disabled={requestBusy}>{t("farmer_send_request")}</button>
+                <button className="btn-secondary" onClick={closeRequestModal} disabled={requestBusy}>{t("farmer_cancel")}</button>
               </div>
             </div>
           </aside>
@@ -938,17 +940,17 @@ export default function FarmerDashboard(): React.ReactElement {
         {/* Details panel */}
         {selectedOwner && (
           <aside id="owner-details" className="success-card" role="dialog" aria-modal="true" aria-labelledby="owner-details-title" style={{ marginTop: 18 }}>
-            <h3 id="owner-details-title">Owner & Machinery Details</h3>
+            <h3 id="owner-details-title">{t("farmer_owner_machinery_details")}</h3>
             <div style={{ marginTop: 8 }}>
-              <div><strong>Owner name</strong><div>{selectedOwner.fullName}</div></div>
-              <div style={{ marginTop: 8 }}><strong>Phone</strong><div>{selectedOwner.phone}</div></div>
-              <div style={{ marginTop: 8 }}><strong>Location</strong><div>{selectedOwner.location || selectedOwner.village || "—"}</div></div>
+              <div><strong>{t("farmer_owner_name")}</strong><div>{selectedOwner.fullName}</div></div>
+              <div style={{ marginTop: 8 }}><strong>{t("farmer_phone")}</strong><div>{selectedOwner.phone}</div></div>
+              <div style={{ marginTop: 8 }}><strong>{t("farmer_location")}</strong><div>{selectedOwner.location || selectedOwner.village || "—"}</div></div>
 
               <div style={{ marginTop: 12 }}>
-                <strong>Inventory</strong>
+                <strong>{t("farmer_inventory")}</strong>
                 <div style={{ marginTop: 8 }}>
                   {machineryForOwner(selectedOwner.phone).length === 0 ? (
-                    <div className="placeholder-box">No machines listed for this owner.</div>
+                    <div className="placeholder-box">{t("farmer_no_machines_owner")}</div>
                   ) : (
                     <div style={{ display: "grid", gap: 8 }}>
                       {machineryForOwner(selectedOwner.phone).map((m) => (
@@ -964,9 +966,9 @@ export default function FarmerDashboard(): React.ReactElement {
 
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                               { (m.availability || "").toLowerCase() === "available" ? (
-                                <button className="btn-secondary" onClick={() => openRequestModal(selectedOwner, m.id)}>Request this machine</button>
+                                <button className="btn-secondary" onClick={() => openRequestModal(selectedOwner, m.id)}>{t("farmer_request_this_machine")}</button>
                               ) : (
-                                <div style={{ fontSize: 13, color: "var(--muted)" }}>Unavailable</div>
+                                <div style={{ fontSize: 13, color: "var(--muted)" }}>{t("farmer_unavailable")}</div>
                               )}
                             </div>
                           </div>
@@ -978,7 +980,7 @@ export default function FarmerDashboard(): React.ReactElement {
               </div>
 
               <div style={{ marginTop: 12, display: "flex", gap: 8 }}>
-                <button className="btn-secondary" onClick={() => setSelectedOwner(null)}>Close</button>
+                <button className="btn-secondary" onClick={() => setSelectedOwner(null)}>{t("farmer_close")}</button>
               </div>
             </div>
           </aside>
@@ -988,10 +990,10 @@ export default function FarmerDashboard(): React.ReactElement {
 
         {/* My Bookings */}
         <section aria-labelledby="my-bookings-heading" style={{ marginTop: 12 }}>
-          <h2 id="my-bookings-heading">My Bookings</h2>
+          <h2 id="my-bookings-heading">{t("farmer_my_bookings")}</h2>
 
           {myBookings.length === 0 ? (
-            <div className="placeholder-box">No bookings yet.</div>
+            <div className="placeholder-box">{t("farmer_empty_bookings")}</div>
           ) : (
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               {myBookings.map((r) => (
@@ -1000,27 +1002,27 @@ export default function FarmerDashboard(): React.ReactElement {
                     <div>
                       <div style={{ fontWeight: 700 }}>{r.machineName}</div>
                       <div style={{ marginTop: 6 }}>{r.machineryType}</div>
-                      <div style={{ marginTop: 6 }}><strong>Owner:</strong> {r.ownerName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Service:</strong> {r.serviceType === "rent" ? "Rent Machine" : "With Operator"}</div>
-                      <div style={{ marginTop: 6 }}><strong>Hours:</strong> {r.hours}</div>
-                      <div style={{ marginTop: 6 }}><strong>Estimated total:</strong> ₹{r.totalPrice.toFixed(2)}</div>
-                      <div style={{ marginTop: 6 }}><strong>Requested:</strong> {new Date(r.createdAt).toLocaleString()}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_service")} </strong> {r.serviceType === "rent" ? t("owner_rent_machine") : t("owner_with_operator")}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_hours_label")} </strong> {r.hours}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_estimated_total_label")}</strong> ₹{r.totalPrice.toFixed(2)}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_requested")} </strong> {new Date(r.createdAt).toLocaleString()}</div>
 
                       {r.status === "accepted" && (
                         <div style={{ marginTop: 12 }} aria-live="polite">
                           {r.acceptedDate && r.acceptedTime ? (
                             <div className="confirmation-message" style={{ borderLeft: "4px solid var(--brand)", paddingLeft: 10 }}>
-                              <div style={{ fontWeight: 700 }}>🔔 Machinery Confirmed</div>
+                              <div style={{ fontWeight: 700 }}>🔔 {t("farmer_machinery_confirmed")}</div>
                               <div style={{ marginTop: 6 }}>
                                 {r.serviceType === "operator"
                                   ? `Your ${r.machineName} operator will arrive on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}.`
                                   : `Your ${r.machineName} will be available for pickup/delivery on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}.`}
                               </div>
-                              <div style={{ marginTop: 8 }}><strong>Owner:</strong> {r.ownerName}</div>
-                              <div style={{ marginTop: 4 }}><strong>Location:</strong> {r.ownerLocation}</div>
+                              <div style={{ marginTop: 8 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
+                              <div style={{ marginTop: 4 }}><strong>{t("farmer_location")}</strong> {r.ownerLocation}</div>
                             </div>
                           ) : (
-                            <div style={{ marginTop: 8, color: "var(--muted)" }}>Arrival date and time not yet provided.</div>
+                            <div style={{ marginTop: 8, color: "var(--muted)" }}>{t("farmer_arrival_date_time_not_provided")}</div>
                           )}
                         </div>
                       )}
@@ -1028,7 +1030,7 @@ export default function FarmerDashboard(): React.ReactElement {
                       {r.status === "completed" && (
                         <div style={{ marginTop: 12 }} aria-live="polite">
                           <div className="confirmation-message" style={{ borderLeft: "4px solid #28a745", paddingLeft: 10 }}>
-                            <div style={{ fontWeight: 700 }}>✅ Job Completed</div>
+                            <div style={{ fontWeight: 700 }}>✅ {t("farmer_job_completed")}</div>
                             <div style={{ marginTop: 6 }}>
                               {r.acceptedDate && r.acceptedTime ? (
                                 r.serviceType === "operator"
@@ -1038,14 +1040,14 @@ export default function FarmerDashboard(): React.ReactElement {
                                 "Job completed."
                               )}
                             </div>
-                            <div style={{ marginTop: 8 }}><strong>Owner:</strong> {r.ownerName}</div>
+                            <div style={{ marginTop: 8 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
                           </div>
                         </div>
                       )}
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, marginBottom: 8 }}>Status</div>
+                      <div style={{ fontWeight: 700, marginBottom: 8 }}>{t("farmer_status")}</div>
                       <div style={{ marginBottom: 12 }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</div>
                     </div>
                   </div>
@@ -1059,10 +1061,10 @@ export default function FarmerDashboard(): React.ReactElement {
 
         {/* My Requests (existing) */}
         <section aria-labelledby="my-requests-heading" style={{ marginTop: 12 }}>
-          <h2 id="my-requests-heading">My Requests</h2>
+          <h2 id="my-requests-heading">{t("farmer_my_requests")}</h2>
 
           {myRequests.length === 0 ? (
-            <div className="placeholder-box">No requests yet.</div>
+            <div className="placeholder-box">{t("farmer_empty_requests")}</div>
           ) : (
             <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
               {myRequests.map((r) => (
@@ -1071,27 +1073,27 @@ export default function FarmerDashboard(): React.ReactElement {
                     <div>
                       <div style={{ fontWeight: 700 }}>{r.machineName}</div>
                       <div style={{ marginTop: 6 }}>{r.machineryType}</div>
-                      <div style={{ marginTop: 6 }}><strong>Owner:</strong> {r.ownerName}</div>
-                      <div style={{ marginTop: 6 }}><strong>Service:</strong> {r.serviceType === "rent" ? "Rent Machine" : "With Operator"}</div>
-                      <div style={{ marginTop: 6 }}><strong>Hours:</strong> {r.hours}</div>
-                      <div style={{ marginTop: 6 }}><strong>Estimated total:</strong> ₹{r.totalPrice.toFixed(2)}</div>
-                      <div style={{ marginTop: 6 }}><strong>Requested:</strong> {new Date(r.createdAt).toLocaleString()}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_service")} </strong> {r.serviceType === "rent" ? t("owner_rent_machine") : t("owner_with_operator")}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_hours_label")} </strong> {r.hours}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_estimated_total_label")}</strong> ₹{r.totalPrice.toFixed(2)}</div>
+                      <div style={{ marginTop: 6 }}><strong>{t("farmer_requested")} </strong> {new Date(r.createdAt).toLocaleString()}</div>
 
                       {r.status === "accepted" && (
                         <div style={{ marginTop: 12 }} aria-live="polite">
                           {r.acceptedDate && r.acceptedTime ? (
                             <div className="confirmation-message" style={{ borderLeft: "4px solid var(--brand)", paddingLeft: 10 }}>
-                              <div style={{ fontWeight: 700 }}>🔔 Machinery Confirmed</div>
+                              <div style={{ fontWeight: 700 }}>🔔 {t("farmer_machinery_confirmed")}</div>
                               <div style={{ marginTop: 6 }}>
                                 {r.serviceType === "operator"
                                   ? `Your ${r.machineName} operator will arrive on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}.`
                                   : `Your ${r.machineName} will be available for pickup/delivery on ${formatDateReadable(r.acceptedDate)} at ${formatTimeReadable(r.acceptedTime)}.`}
                               </div>
-                              <div style={{ marginTop: 8 }}><strong>Owner:</strong> {r.ownerName}</div>
-                              <div style={{ marginTop: 4 }}><strong>Location:</strong> {r.ownerLocation}</div>
+                              <div style={{ marginTop: 8 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
+                              <div style={{ marginTop: 4 }}><strong>{t("farmer_location")}</strong> {r.ownerLocation}</div>
                             </div>
                           ) : (
-                            <div style={{ marginTop: 8, color: "var(--muted)" }}>Arrival date and time not yet provided.</div>
+                            <div style={{ marginTop: 8, color: "var(--muted)" }}>{t("farmer_arrival_date_time_not_provided")}</div>
                           )}
                         </div>
                       )}
@@ -1099,7 +1101,7 @@ export default function FarmerDashboard(): React.ReactElement {
                       {r.status === "completed" && (
                         <div style={{ marginTop: 12 }} aria-live="polite">
                           <div className="confirmation-message" style={{ borderLeft: "4px solid #28a745", paddingLeft: 10 }}>
-                            <div style={{ fontWeight: 700 }}>✅ Job Completed</div>
+                            <div style={{ fontWeight: 700 }}>✅ {t("farmer_job_completed")}</div>
                             <div style={{ marginTop: 6 }}>
                               {r.acceptedDate && r.acceptedTime ? (
                                 r.serviceType === "operator"
@@ -1109,18 +1111,18 @@ export default function FarmerDashboard(): React.ReactElement {
                                 "Job completed."
                               )}
                             </div>
-                            <div style={{ marginTop: 8 }}><strong>Owner:</strong> {r.ownerName}</div>
+                            <div style={{ marginTop: 8 }}><strong>{t("farmer_owner")}</strong> {r.ownerName}</div>
                           </div>
                         </div>
                       )}
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                      <div style={{ fontWeight: 700, marginBottom: 8 }}>Status</div>
+                      <div style={{ fontWeight: 700, marginBottom: 8 }}>{t("farmer_status")}</div>
                       <div style={{ marginBottom: 12 }}>{r.status.charAt(0).toUpperCase() + r.status.slice(1)}</div>
 
                       {r.status === "pending" && (
-                        <button className="btn-secondary" onClick={() => cancelRequest(r.id)}>Cancel Request</button>
+                        <button className="btn-secondary" onClick={() => cancelRequest(r.id)}>{t("farmer_cancel_request")}</button>
                       )}
                     </div>
                   </div>
